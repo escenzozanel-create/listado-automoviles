@@ -1,0 +1,279 @@
+﻿<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listado de Automóviles</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="min-h-screen bg-gray-50 text-gray-800">
+    <main class="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+
+        <section class="mb-6">
+            <div class="px-1">
+                <h1 class="text-2xl font-semibold text-gray-900 sm:text-3xl">
+                    Listado de Automóviles
+                </h1>
+            </div>
+        </section>
+
+        <section class="rounded-lg border border-gray-200 bg-white p-5 shadow-sm sm:p-6">
+            <form id="formFiltros" method="get" th:action="@{/automoviles}"
+                  class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
+
+                <label class="block">
+                    <span class="mb-1 block text-sm font-medium text-gray-700">Marca</span>
+                    <select name="marca" class="filtro h-11 w-full rounded-md border border-gray-300 bg-white px-3 text-sm text-gray-800 outline-none transition focus:border-gray-500 focus:ring-2 focus:ring-gray-200" data-posicion="0">
+                        <option value="">Todas</option>
+                        <option th:each="marca : ${marcas}"
+                                th:value="${marca}"
+                                th:text="${marca}"
+                                th:selected="${marca == marcaSeleccionada}">
+                        </option>
+                    </select>
+                </label>
+
+                <label class="block">
+                    <span class="mb-1 block text-sm font-medium text-gray-700">Modelo</span>
+                    <select name="modelo" class="filtro h-11 w-full rounded-md border border-gray-300 bg-white px-3 text-sm text-gray-800 outline-none transition focus:border-gray-500 focus:ring-2 focus:ring-gray-200" data-posicion="1">
+                        <option value="">Todos</option>
+                        <option th:each="modelo : ${modelos}"
+                                th:value="${modelo}"
+                                th:text="${modelo}"
+                                th:selected="${modelo == modeloSeleccionado}">
+                        </option>
+                    </select>
+                </label>
+
+                <label class="block">
+                    <span class="mb-1 block text-sm font-medium text-gray-700">Clase</span>
+                    <select name="clase" class="filtro h-11 w-full rounded-md border border-gray-300 bg-white px-3 text-sm text-gray-800 outline-none transition focus:border-gray-500 focus:ring-2 focus:ring-gray-200" data-posicion="2">
+                        <option value="">Todas</option>
+                        <option th:each="clase : ${clases}"
+                                th:value="${clase}"
+                                th:text="${clase}"
+                                th:selected="${clase == claseSeleccionada}">
+                        </option>
+                    </select>
+                </label>
+
+                <label class="block">
+                    <span class="mb-1 block text-sm font-medium text-gray-700">Color</span>
+                    <select name="color" class="filtro h-11 w-full rounded-md border border-gray-300 bg-white px-3 text-sm text-gray-800 outline-none transition focus:border-gray-500 focus:ring-2 focus:ring-gray-200" data-posicion="3">
+                        <option value="">Todos</option>
+                        <option th:each="color : ${colores}"
+                                th:value="${color}"
+                                th:text="${color}"
+                                th:selected="${color == colorSeleccionado}">
+                        </option>
+                    </select>
+                </label>
+
+                <label class="block">
+                    <span class="mb-1 block text-sm font-medium text-gray-700">Año</span>
+                    <select name="anio" class="filtro h-11 w-full rounded-md border border-gray-300 bg-white px-3 text-sm text-gray-800 outline-none transition focus:border-gray-500 focus:ring-2 focus:ring-gray-200" data-posicion="4">
+                        <option value="">Todos</option>
+                        <option th:each="anio : ${anios}"
+                                th:value="${anio}"
+                                th:text="${anio}"
+                                th:selected="${anio == anioSeleccionado}">
+                        </option>
+                    </select>
+                </label>
+
+                <div class="flex flex-col gap-3 pt-2 sm:flex-row md:col-span-2 xl:col-span-5">
+                    <button type="submit" name="filtrar" value="true"
+                            class="inline-flex h-11 items-center justify-center rounded-md bg-black px-5 text-sm font-semibold text-white transition hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-300">
+                        Filtrar
+                    </button>
+
+                    <a class="inline-flex h-11 items-center justify-center rounded-md border border-gray-300 bg-white px-5 text-sm font-semibold text-gray-700 transition hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200"
+                       th:href="@{/automoviles}">
+                        Limpiar filtros
+                    </a>
+                </div>
+            </form>
+
+            <div class="mt-6 flex justify-end border-t border-gray-200 pt-5">
+                <p class="text-sm font-medium text-gray-700">
+                    Cantidad de resultados:
+                    <span id="cantidadResultados" th:text="${#lists.size(automoviles)}">0</span>
+                </p>
+            </div>
+
+            <div id="mensajeSinResultados"
+                 class="mt-5 rounded-md border border-gray-200 bg-gray-50 px-4 py-3 text-sm font-medium text-gray-700"
+                 th:classappend="${#lists.isEmpty(automoviles)} ? '' : ' hidden'">
+                No se encontraron automóviles con los filtros seleccionados.
+            </div>
+
+            <div id="tablaContenedor"
+                 class="mt-5 overflow-hidden rounded-lg border border-gray-200 bg-white"
+                 th:classappend="${#lists.isEmpty(automoviles)} ? ' hidden' : ''">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-600">ID</th>
+                                <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-600">Marca</th>
+                                <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-600">Modelo</th>
+                                <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-600">Clase</th>
+                                <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-600">Color</th>
+                                <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-600">Año</th>
+                                <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-600">Precio</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="tablaAutomoviles" class="divide-y divide-gray-100 bg-white">
+                            <tr th:each="automovil : ${automoviles}" class="transition hover:bg-gray-50">
+                                <td class="whitespace-nowrap px-4 py-4 text-sm font-medium text-gray-800" th:text="${automovil.id}">1</td>
+                                <td class="whitespace-nowrap px-4 py-4 text-sm text-gray-700" th:text="${automovil.marca}">Toyota</td>
+                                <td class="whitespace-nowrap px-4 py-4 text-sm text-gray-700" th:text="${automovil.modelo}">Corolla</td>
+                                <td class="whitespace-nowrap px-4 py-4 text-sm text-gray-700" th:text="${automovil.clase}">Sedan</td>
+                                <td class="whitespace-nowrap px-4 py-4 text-sm text-gray-700" th:text="${automovil.color}">Blanco</td>
+                                <td class="whitespace-nowrap px-4 py-4 text-sm text-gray-700" th:text="${automovil.anio}">2023</td>
+                                <td class="whitespace-nowrap px-4 py-4 text-sm font-bold text-emerald-700" th:text="${automovil.precio}">25000</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script th:inline="javascript">
+        const formFiltros = document.getElementById("formFiltros");
+        const camposFiltros = ["marca", "modelo", "clase", "color", "anio"];
+        const selectsFiltros = Object.fromEntries(
+            camposFiltros.map(function (campo) {
+                return [campo, formFiltros.elements[campo]];
+            })
+        );
+        const opcionesUrl = /*[[@{/automoviles/opciones}]]*/ "/automoviles/opciones";
+        const resultadosUrl = /*[[@{/automoviles/resultados}]]*/ "/automoviles/resultados";
+        const textosIniciales = {
+            marca: "Todas",
+            modelo: "Todos",
+            clase: "Todas",
+            color: "Todos",
+            anio: "Todos"
+        };
+        let solicitudOpciones = 0;
+
+        if (window.location.search) {
+            window.history.replaceState(null, "", window.location.pathname);
+        }
+
+        function parametrosFiltros() {
+            const parametros = new URLSearchParams();
+
+            camposFiltros.forEach(function (campo) {
+                parametros.set(campo, selectsFiltros[campo].value);
+            });
+
+            return parametros;
+        }
+
+        function actualizarSelect(campo, opciones, seleccion) {
+            const select = selectsFiltros[campo];
+            const valorSeleccionado = seleccion == null ? "" : String(seleccion);
+            const fragmento = document.createDocumentFragment();
+            const opcionInicial = document.createElement("option");
+
+            opcionInicial.value = "";
+            opcionInicial.textContent = textosIniciales[campo];
+            fragmento.appendChild(opcionInicial);
+
+            opciones.forEach(function (opcion) {
+                const option = document.createElement("option");
+                const valor = String(opcion);
+
+                option.value = valor;
+                option.textContent = valor;
+                option.selected = valor === valorSeleccionado;
+                fragmento.appendChild(option);
+            });
+
+            select.replaceChildren(fragmento);
+            select.value = valorSeleccionado;
+        }
+
+        function aplicarOpciones(data) {
+            actualizarSelect("marca", data.marcas, data.marcaSeleccionada);
+            actualizarSelect("modelo", data.modelos, data.modeloSeleccionado);
+            actualizarSelect("clase", data.clases, data.claseSeleccionada);
+            actualizarSelect("color", data.colores, data.colorSeleccionado);
+            actualizarSelect("anio", data.anios, data.anioSeleccionado);
+        }
+
+        async function cargarOpciones() {
+            const solicitudActual = ++solicitudOpciones;
+            const respuesta = await fetch(opcionesUrl + "?" + parametrosFiltros().toString(), {
+                headers: { "Accept": "application/json" }
+            });
+
+            if (!respuesta.ok || solicitudActual !== solicitudOpciones) {
+                return;
+            }
+
+            aplicarOpciones(await respuesta.json());
+        }
+
+        function agregarCelda(fila, valor, clases) {
+            const celda = document.createElement("td");
+
+            celda.className = clases;
+            celda.textContent = valor == null ? "" : valor;
+            fila.appendChild(celda);
+        }
+
+        function mostrarResultados(automoviles) {
+            const cuerpoTabla = document.getElementById("tablaAutomoviles");
+            const cantidadResultados = document.getElementById("cantidadResultados");
+            const mensajeSinResultados = document.getElementById("mensajeSinResultados");
+            const tablaContenedor = document.getElementById("tablaContenedor");
+
+            cuerpoTabla.replaceChildren();
+            cantidadResultados.textContent = automoviles.length;
+            mensajeSinResultados.classList.toggle("hidden", automoviles.length > 0);
+            tablaContenedor.classList.toggle("hidden", automoviles.length === 0);
+
+            automoviles.forEach(function (automovil) {
+                const fila = document.createElement("tr");
+
+                fila.className = "transition hover:bg-gray-50";
+                agregarCelda(fila, automovil.id, "whitespace-nowrap px-4 py-4 text-sm font-medium text-gray-800");
+                agregarCelda(fila, automovil.marca, "whitespace-nowrap px-4 py-4 text-sm text-gray-700");
+                agregarCelda(fila, automovil.modelo, "whitespace-nowrap px-4 py-4 text-sm text-gray-700");
+                agregarCelda(fila, automovil.clase, "whitespace-nowrap px-4 py-4 text-sm text-gray-700");
+                agregarCelda(fila, automovil.color, "whitespace-nowrap px-4 py-4 text-sm text-gray-700");
+                agregarCelda(fila, automovil.anio, "whitespace-nowrap px-4 py-4 text-sm text-gray-700");
+                agregarCelda(fila, automovil.precio, "whitespace-nowrap px-4 py-4 text-sm font-bold text-emerald-700");
+                cuerpoTabla.appendChild(fila);
+            });
+        }
+
+        camposFiltros.forEach(function (campo) {
+            selectsFiltros[campo].addEventListener("change", function () {
+                cargarOpciones();
+            });
+        });
+
+        formFiltros.addEventListener("submit", async function (event) {
+            event.preventDefault();
+
+            const respuesta = await fetch(resultadosUrl + "?" + parametrosFiltros().toString(), {
+                headers: { "Accept": "application/json" }
+            });
+
+            if (!respuesta.ok) {
+                return;
+            }
+
+            mostrarResultados(await respuesta.json());
+            window.history.replaceState(null, "", window.location.pathname);
+        });
+    </script>
+</body>
+</html>
